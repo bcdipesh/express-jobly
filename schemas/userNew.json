@@ -39,6 +39,7 @@
     "firstName",
     "lastName",
     "password",
-    "email"
+    "email",
+    "isAdmin"
   ]
 }
