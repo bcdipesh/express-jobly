@@ -58,8 +58,8 @@ class Job {
 
   /** Given a id of the job, return data about the job.
    *
-   * Returns { id, title, salary, equity, companyHandle }
-   * where companyHandle is { handle, name, description, numEmployees, logoUrl }
+   * Returns { id, title, salary, equity, company }
+   * where company is { handle, name, description, numEmployees, logoUrl }
    *
    * Throws NotFoundError if not found.
    */
@@ -67,9 +67,9 @@ class Job {
   static async get(id) {
     const jobRes = await db.query(
       `SELECT
-      id, title, salary, equity, company_handle AS "companyHandle",
+      id, title, salary, equity, company_handle AS "company",
       handle, name, description, num_employees AS "numEmployees", logo_url AS "logoUrl"
-      FROM jobs INNER JOIN companies jobs.companyHandle = companies.handle
+      FROM jobs INNER JOIN companies ON jobs.company_handle = companies.handle
       WHERE id = $1`,
       [id]
     );
@@ -78,7 +78,19 @@ class Job {
 
     if (!job) throw new NotFoundError(`No job: ${id}`);
 
-    return job;
+    return {
+      id: job.id,
+      title: job.title,
+      salary: job.salary,
+      equity: job.equity,
+      company: {
+        handle: job.handle,
+        name: job.name,
+        numEmployees: job.numEmployees,
+        description: job.description,
+        logoUrl: job.logoUrl,
+      },
+    };
   }
 
   /** Update job data with `data`.
@@ -94,7 +106,7 @@ class Job {
    */
 
   static async update(id, data) {
-    const { setCols, values } = sqlForPartialUpdate(data);
+    const { setCols, values } = sqlForPartialUpdate(data, {});
     const handleVarIdx = "$" + (values.length + 1);
 
     const querySql = `UPDATE jobs
