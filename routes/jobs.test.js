@@ -224,3 +224,33 @@ describe("PATCH /jobs/:id", function () {
     expect(resp.statusCode).toEqual(400);
   });
 });
+
+/************************************** DELETE /jobs/:id */
+
+describe("DELETE /jobs/:id", function () {
+  test("works for admins", async function () {
+    const resp = await request(app)
+      .delete("/jobs/1")
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.body).toEqual({ deleted: "1" });
+  });
+
+  test("unauth for non admins", async function () {
+    const resp = await request(app)
+      .delete("/jobs/1")
+      .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("unauth for anon", async function () {
+    const resp = await request(app).delete("/jobs/1");
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("not found for no such job", async function () {
+    const resp = await request(app)
+      .delete("/jobs/100")
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(404);
+  });
+});
