@@ -61,8 +61,8 @@ class Job {
    * Returns { id, title, salary, equity, company }
    * where company is { handle, name, description, numEmployees, logoUrl }
    *
-   * Throws NotFoundError if not found.
-   */
+   * Throws NotFoundError if job is not found.
+   **/
 
   static async get(id) {
     const jobRes = await db.query(

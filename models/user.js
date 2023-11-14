@@ -9,6 +9,8 @@ const {
   UnauthorizedError,
 } = require("../expressError");
 
+const Job = require("./job.js");
+
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
 
 /** Related functions for users. */
@@ -95,6 +97,29 @@ class User {
     return user;
   }
 
+  /** Given a username and jobId applies for that job.
+   *
+   * Returns jobId.
+   *
+   * Throws NotFoundError if user or job could not be found.
+   */
+
+  static async applyForJob(username, jobId) {
+    await User.get(username);
+    await Job.get(jobId);
+
+    const result = await db.query(
+      `INSERT INTO applications
+      (username, job_id)
+      VALUES
+      ($1, $2)
+      RETURNING job_id AS "jobId"`,
+      [username, jobId]
+    );
+
+    return result.rows[0].jobId;
+  }
+
   /** Find all users.
    *
    * Returns [{ username, first_name, last_name, email, is_admin }, ...]
@@ -117,7 +142,7 @@ class User {
   /** Given a username, return data about user.
    *
    * Returns { username, first_name, last_name, is_admin, jobs }
-   *   where jobs is { id, title, company_handle, company_name, state }
+   *   where jobs is [ jobId, jobId, ...]
    *
    * Throws NotFoundError if user not found.
    **/
@@ -134,11 +159,19 @@ class User {
       [username]
     );
 
+    const jobsRes = await db.query(
+      `SELECT job_id FROM applications WHERE username = $1`,
+      [username]
+    );
+
     const user = userRes.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
 
-    return user;
+    return {
+      ...user,
+      jobs: jobsRes.rows.map((job) => job.job_id),
+    };
   }
 
   /** Update user data with `data`.

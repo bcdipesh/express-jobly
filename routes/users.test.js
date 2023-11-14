@@ -126,6 +126,56 @@ describe("POST /users", function () {
   });
 });
 
+/************************************** POST /users/:username/jobs/:id */
+
+describe("POST /users/:username/jobs/:id", function () {
+  test("works for admins", async function () {
+    const resp = await request(app)
+      .post("/users/u2/jobs/1")
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({
+      applied: 1,
+    });
+  });
+
+  test("works for that user", async function () {
+    const resp = await request(app)
+      .post("/users/u2/jobs/2")
+      .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({
+      applied: 2,
+    });
+  });
+
+  test("unauth for anon", async function () {
+    const resp = await request(app).post("/users/u2/jobs/2");
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("unauth for different user", async function () {
+    const resp = await request(app)
+      .post("/users/u1/jobs/3")
+      .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("not found for no such user", async function () {
+    const resp = await request(app)
+      .post("/users/u5/jobs/1")
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(404);
+  });
+
+  test("not found for no such job", async function () {
+    const resp = await request(app)
+      .post("/users/u1/jobs/100")
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(404);
+  });
+});
+
 /************************************** GET /users */
 
 describe("GET /users", function () {
@@ -198,6 +248,7 @@ describe("GET /users/:username", function () {
         lastName: "U3L",
         email: "user3@user.com",
         isAdmin: false,
+        jobs: [1, 2],
       },
     });
   });
@@ -213,6 +264,7 @@ describe("GET /users/:username", function () {
         lastName: "U2L",
         email: "user2@user.com",
         isAdmin: false,
+        jobs: [],
       },
     });
   });
