@@ -85,6 +85,8 @@ class Company {
       [handle]
     );
 
+    console.log(jobRes.rows);
+
     const company = companyRes.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);

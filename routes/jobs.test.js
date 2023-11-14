@@ -101,7 +101,154 @@ describe("GET /jobs", function () {
           title: "job 3",
           salary: 3000,
           equity: "1",
-          companyHandle: "c3",
+          companyHandle: "c2",
+        },
+      ],
+    });
+  });
+
+  test("test title filter", async function () {
+    const resp = await request(app).get("/jobs?title=job 1");
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({
+      jobs: [
+        {
+          id: expect.any(Number),
+          title: "job 1",
+          salary: 1000,
+          equity: "0",
+          companyHandle: "c1",
+        },
+      ],
+    });
+  });
+
+  test("test minSalary filter", async function () {
+    const resp = await request(app).get("/jobs?minSalary=2000");
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({
+      jobs: [
+        {
+          id: expect.any(Number),
+          title: "job 2",
+          salary: 2000,
+          equity: "1",
+          companyHandle: "c2",
+        },
+        {
+          id: expect.any(Number),
+          title: "job 3",
+          salary: 3000,
+          equity: "1",
+          companyHandle: "c2",
+        },
+      ],
+    });
+  });
+
+  test("list jobs with non-zero equity if hasEquity is true", async function () {
+    const resp = await request(app).get("/jobs?hasEquity=true");
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({
+      jobs: [
+        {
+          id: expect.any(Number),
+          title: "job 2",
+          salary: 2000,
+          equity: "1",
+          companyHandle: "c2",
+        },
+        {
+          id: expect.any(Number),
+          title: "job 3",
+          salary: 3000,
+          equity: "1",
+          companyHandle: "c2",
+        },
+      ],
+    });
+  });
+
+  test("list all jobs if hasEquity is false", async function () {
+    const resp = await request(app).get("/jobs?hasEquity=false");
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({
+      jobs: [
+        {
+          id: expect.any(Number),
+          title: "job 1",
+          salary: 1000,
+          equity: "0",
+          companyHandle: "c1",
+        },
+        {
+          id: expect.any(Number),
+          title: "job 2",
+          salary: 2000,
+          equity: "1",
+          companyHandle: "c2",
+        },
+        {
+          id: expect.any(Number),
+          title: "job 3",
+          salary: 3000,
+          equity: "1",
+          companyHandle: "c2",
+        },
+      ],
+    });
+  });
+
+  test("list all jobs if hasEquity is missing", async function () {
+    const resp = await request(app).get("/jobs?");
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({
+      jobs: [
+        {
+          id: expect.any(Number),
+          title: "job 1",
+          salary: 1000,
+          equity: "0",
+          companyHandle: "c1",
+        },
+        {
+          id: expect.any(Number),
+          title: "job 2",
+          salary: 2000,
+          equity: "1",
+          companyHandle: "c2",
+        },
+        {
+          id: expect.any(Number),
+          title: "job 3",
+          salary: 3000,
+          equity: "1",
+          companyHandle: "c2",
+        },
+      ],
+    });
+  });
+
+  test("works with all filters combined", async function () {
+    const resp = await request(app).get(
+      "/jobs?title=job&minSalary=1000&hasEquity=true"
+    );
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({
+      jobs: [
+        {
+          id: expect.any(Number),
+          title: "job 2",
+          salary: 2000,
+          equity: "1",
+          companyHandle: "c2",
+        },
+        {
+          id: expect.any(Number),
+          title: "job 3",
+          salary: 3000,
+          equity: "1",
+          companyHandle: "c2",
         },
       ],
     });

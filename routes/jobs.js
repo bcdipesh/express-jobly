@@ -53,6 +53,34 @@ router.get("/", async function (req, res, next) {
   try {
     let jobs = await Job.findAll();
 
+    // Destructure query parameters from the request
+    const { title, minSalary, hasEquity } = req.query;
+
+    // Filter by title
+    if (title) {
+      jobs = jobs.filter((job) =>
+        job.title.toLowerCase().includes(title.toLowerCase())
+      );
+    }
+
+    // Filter by minSalary
+    if (minSalary) {
+      jobs = jobs.filter((job) => job.salary >= minSalary);
+    }
+
+    if (hasEquity === "true") {
+      jobs = jobs.filter((job) => {
+        try {
+          let equity = Number(job.equity);
+          if (equity > 0) {
+            return true;
+          }
+        } catch (err) {
+          return false;
+        }
+      });
+    }
+
     return res.json({ jobs });
   } catch (err) {
     return next(err);
