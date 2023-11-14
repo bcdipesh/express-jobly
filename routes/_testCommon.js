@@ -78,7 +78,7 @@ async function commonBeforeAll() {
     title: "job 3",
     salary: 3000,
     equity: 1,
-    companyHandle: "c3",
+    companyHandle: "c2",
   });
 }
 
