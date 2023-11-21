@@ -310,7 +310,7 @@ describe("PATCH /users/:username", () => {
     });
   });
 
-  test("works for users updaing their own details", async function () {
+  test("works for users updating their own details", async function () {
     const resp = await request(app)
       .patch(`/users/u2`)
       .send({

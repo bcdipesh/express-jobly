@@ -16,10 +16,7 @@ describe("sqlForPartialUpdate", function () {
 
   test("bad request with no update data", function () {
     try {
-      const { setCols, values } = sqlForPartialUpdate(
-        {},
-        { name: "username", email: "email" }
-      );
+      sqlForPartialUpdate({}, { name: "username", email: "email" });
     } catch (err) {
       expect(err instanceof BadRequestError).toBeTruthy();
     }
